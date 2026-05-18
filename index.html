@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peptide Dose — Research Grade Peptide Tracking</title>
+  <meta name="description" content="Track vials, log doses, and calculate reconstitution with precision. The research-grade peptide tracking app built for serious users." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest: #1a3d2b; --forest-dark: #0f2418; --forest-mid: #2d6a4f;
+      --mint: #7fffa8; --page: #f5f8f4; --white: #ffffff;
+      --border: #e4ede5; --text: #1a2e1e; --muted: #7a8f80; --dim: #9ab5a0;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--text); line-height: 1.6; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 5%; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .2s; cursor: pointer; }
+    .nav-links a:hover { color: var(--forest); }
+    .nav-cta { background: var(--forest) !important; color: #fff !important; padding: 8px 18px; border-radius: 9px; font-weight: 700 !important; }
+
+    /* WORDMARK */
+    .wm { display: flex; flex-direction: column; line-height: 1; }
+    .wm-p { font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; }
+    .wm-d { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 18px; letter-spacing: -0.3px; line-height: 1.05; }
+    .wm-light .wm-p { color: rgba(255,255,255,0.6); }
+    .wm-light .wm-d { color: var(--mint); }
+    .wm-dark  .wm-p { color: var(--muted); }
+    .wm-dark  .wm-d { color: var(--forest); }
+
+    /* HERO */
+    .hero { background: linear-gradient(160deg, var(--forest) 0%, var(--forest-dark) 100%); padding: 120px 5% 80px; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; right: -100px; top: -100px; width: 500px; height: 500px; border-radius: 50%; background: rgba(127,255,168,0.04); pointer-events: none; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 60px; }
+    .hero-eyebrow { font-size: 11px; font-weight: 700; color: rgba(127,255,168,0.7); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 52px); font-weight: 700; color: #fff; line-height: 1.12; letter-spacing: -0.5px; margin-bottom: 20px; }
+    .hero-title span { color: var(--mint); }
+    .hero-sub { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.75; margin-bottom: 36px; max-width: 440px; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn-dl { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--forest); padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; transition: all .2s; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+    .btn-lk { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.7); padding: 14px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; text-decoration: none; transition: all .2s; border: 1.5px solid rgba(255,255,255,0.2); }
+    .btn-lk:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+    .hero-disc { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 500; }
+
+    /* PHONE */
+    .hero-visual { display: flex; justify-content: center; }
+    .phone { width: 238px; height: 488px; background: #0f1a12; border-radius: 36px; border: 2px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05); position: relative; }
+    .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 86px; height: 22px; background: #0f1a12; border-radius: 0 0 14px 14px; z-index: 10; }
+    .phone-scr { width: 100%; height: 100%; background: linear-gradient(180deg, var(--forest) 0%, var(--forest-dark) 42%, var(--page) 42%); padding: 32px 13px 13px; display: flex; flex-direction: column; gap: 5px; }
+    .p-ey { color: rgba(127,255,168,0.7); font-size: 7px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .p-ti { font-family: 'Playfair Display', serif; color: #fff; font-size: 16px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+    .p-hm { display: flex; gap: 4px; margin-bottom: 5px; }
+    .hc { flex: 1; aspect-ratio: 1; border-radius: 5px; background: rgba(255,255,255,0.07); }
+    .hc.a { background: var(--mint); }
+    .p-lb { font-size: 7px; font-weight: 700; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; padding: 0 1px; margin-bottom: 3px; }
+    .p-rw { display: flex; align-items: center; gap: 6px; background: #fff; border-radius: 7px; padding: 6px 8px; border: 1.5px solid var(--border); margin-bottom: 3px; }
+    .p-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .p-nm { font-size: 7.5px; font-weight: 700; color: var(--text); flex: 1; }
+    .p-tg { font-size: 6px; font-weight: 700; border-radius: 4px; padding: 2px 5px; }
+    .p-bl { font-size: 6.5px; color: var(--muted); margin-bottom: 2px; }
+    .p-tr { height: 3.5px; background: #e8f0e9; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+    .p-tf { height: 100%; border-radius: 2px; }
+
+    /* TICKER */
+    .ticker { background: var(--forest); padding: 9px 0; overflow: hidden; }
+    .tk-in { display: flex; white-space: nowrap; animation: tk 22s linear infinite; }
+    .tk-tx { font-size: 11px; font-weight: 600; color: rgba(127,255,168,0.7); letter-spacing: .5px; }
+    @keyframes tk { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* SECTIONS */
+    section { padding: 80px 5%; }
+    .si { max-width: 1100px; margin: 0 auto; }
+    .s-ey { font-size: 11px; font-weight: 700; color: var(--forest-mid); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .s-ti { font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 38px); font-weight: 700; color: var(--text); line-height: 1.2; letter-spacing: -0.3px; margin-bottom: 12px; }
+    .s-su { font-size: 14px; color: var(--muted); line-height: 1.75; max-width: 500px; }
+
+    /* FEATURES */
+    .feat-bg { background: var(--page); }
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 16px; margin-top: 44px; }
+    .f-card { background: #fff; border-radius: 16px; border: 1.5px solid var(--border); padding: 24px; transition: transform .2s, box-shadow .2s; }
+    .f-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(26,61,43,0.08); }
+    .f-ico { width: 44px; height: 44px; border-radius: 12px; background: #eaf4ef; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 14px; }
+    .f-ti { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 7px; }
+    .f-de { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* STEPS */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px; margin-top: 44px; }
+    .step { text-align: center; }
+    .s-num { width: 48px; height: 48px; border-radius: 50%; background: var(--forest); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; margin: 0 auto 14px; }
+    .s-stl { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 7px; }
+    .s-sde { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* DISCLAIMER */
+    .disc-sec { background: var(--forest); padding: 60px 5%; }
+    .disc-in { max-width: 700px; margin: 0 auto; text-align: center; }
+    .disc-in h2 { font-family: 'Playfair Display', serif; font-size: 25px; color: #fff; margin-bottom: 13px; }
+    .disc-in p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.8; }
+    .disc-bdg { display: inline-block; background: rgba(127,255,168,0.12); border: 1px solid rgba(127,255,168,0.3); color: var(--mint); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+
+    /* DOWNLOAD */
+    .dl-sec { background: var(--page); text-align: center; }
+    .asb { display: inline-flex; align-items: center; gap: 12px; background: var(--text); color: #fff; padding: 14px 28px; border-radius: 14px; text-decoration: none; transition: all .2s; margin-top: 26px; }
+    .asb:hover { transform: translateY(-2px); background: var(--forest); }
+    .asb-s { font-size: 10px; opacity: .7; display: block; }
+    .asb-m { font-size: 15px; font-weight: 700; display: block; }
+
+    /* FOOTER */
+    footer { background: var(--text); padding: 48px 5% 32px; }
+    .ft-in { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 44px; }
+    .ft-br p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-top: 10px; }
+    .ft-col h4 { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .ft-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); text-decoration: none; margin-bottom: 9px; transition: color .2s; cursor: pointer; }
+    .ft-col a:hover { color: #fff; }
+    .ft-bt { max-width: 1100px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .ft-bt p { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    /* PAGES */
+    .page { display: none; }
+
+    /* LEGAL */
+    .lg-hero { background: linear-gradient(160deg, var(--forest), var(--forest-dark)); padding: 100px 5% 56px; }
+    .lg-hi { max-width: 1100px; margin: 0 auto; }
+    .lg-hi h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 4vw, 40px); color: #fff; font-weight: 700; }
+    .lg-hi p { color: rgba(255,255,255,0.45); font-size: 13px; margin-top: 7px; }
+    .lg-body { max-width: 720px; margin: 0 auto; padding: 56px 5%; }
+    .lg-body h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--text); margin: 34px 0 10px; }
+    .lg-body h2:first-child { margin-top: 0; }
+    .lg-body p { font-size: 14px; color: #4a5e50; line-height: 1.85; margin-bottom: 11px; }
+    .lg-body ul { margin: 7px 0 14px 18px; }
+    .lg-body li { font-size: 14px; color: #4a5e50; line-height: 1.8; margin-bottom: 5px; }
+    .lg-body a { color: var(--forest); }
+    .lg-div { height: 1px; background: var(--border); margin: 22px 0; }
+    .lg-ft { background: var(--text); padding: 26px 5%; }
+    .lg-ft-in { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .lg-ft p { font-size: 12px; color: rgba(255,255,255,0.4); }
+    .lg-ft a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; margin-left: 18px; cursor: pointer; }
+    .lg-ft a:hover { color: #fff; }
+
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-sub { margin: 0 auto 36px; }
+      .hero-actions { justify-content: center; }
+      .hero-visual { display: none; }
+      .ft-in { grid-template-columns: 1fr; gap: 24px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    <svg width="40" height="46" viewBox="0 0 40 46">
+      <!-- Hexagon background -->
+      <polygon points="20,2 38,12 38,34 20,44 2,34 2,12" fill="#1a3d2b"/>
+      <!-- Inner hex subtle border -->
+      <polygon points="20,6 34,14 34,32 20,40 6,32 6,14" fill="none" stroke="rgba(127,255,168,0.1)" stroke-width="1"/>
+      <!-- Bonds from centre -->
+      <line x1="20" y1="23" x2="12" y2="17" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="20" y1="23" x2="28" y2="17" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="20" y1="23" x2="12" y2="29" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="20" y1="23" x2="28" y2="29" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Satellite nodes filled -->
+      <circle cx="12" cy="17" r="3.5" fill="#7fffa8"/>
+      <circle cx="28" cy="17" r="3.5" fill="#7fffa8"/>
+      <circle cx="12" cy="29" r="3.5" fill="#7fffa8"/>
+      <circle cx="28" cy="29" r="3.5" fill="#7fffa8"/>
+      <!-- Centre node -->
+      <circle cx="20" cy="23" r="5" fill="#7fffa8"/>
+      <circle cx="20" cy="23" r="2.5" fill="#1a3d2b"/>
+      <circle cx="20" cy="23" r="1" fill="#7fffa8"/>
+    </svg>
+    <div class="wm wm-dark">
+      <span class="wm-p">PEPTIDE</span>
+      <span class="wm-d">Dose</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a onclick="showPage('privacy')">Privacy</a></li>
+    <li><a onclick="showPage('support')">Support</a></li>
+    <li><a href="#download" class="nav-cta">Download</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════ HOME ═══════════════════════ -->
+<div id="page-home">
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-eyebrow">Research Grade Peptide Tracking</p>
+        <h1 class="hero-title">Track Vials and<br/>Supplements <span>Faster.</span></h1>
+        <p class="hero-sub">Log every dose with precision. Calculate exact syringe volumes. Monitor your full stack — all in one beautifully designed research tool.</p>
+        <div class="hero-actions">
+          <a href="#download" class="btn-dl"><span>🍎</span> Download on iOS</a>
+          <a href="#features" class="btn-lk">See Features →</a>
+        </div>
+        <p class="hero-disc">For research purposes only · 18+ only · Not medical advice</p>
+      </div>
+      <div class="hero-visual">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-scr">
+            <p class="p-ey">Wednesday 30 April</p>
+            <p class="p-ti">All done<br/>today. ✓</p>
+            <div class="p-hm">
+              <div class="hc"></div><div class="hc"></div>
+              <div class="hc a"></div><div class="hc a"></div>
+              <div class="hc a"></div><div class="hc a"></div><div class="hc a"></div>
+            </div>
+            <div style="height:5px"></div>
+            <p class="p-lb">📅 Today's Doses</p>
+            <div class="p-rw">
+              <div class="p-dot" style="background:#1a3d2b"></div>
+              <span class="p-nm">BPC-157 Protocol</span>
+              <span class="p-tg" style="background:#eaf8ee;color:#1a7a3a">✓ Done</span>
+            </div>
+            <div class="p-rw">
+              <div class="p-dot" style="background:#b5451b"></div>
+              <span class="p-nm">Ipamorelin Stack</span>
+              <span class="p-tg" style="background:#fff7e8;color:#b5651b">Log</span>
+            </div>
+            <div style="height:4px"></div>
+            <p class="p-lb">〰 Current Levels</p>
+            <p class="p-bl">BPC-157 · 62% active</p>
+            <div class="p-tr"><div class="p-tf" style="width:62%;background:#1a3d2b"></div></div>
+            <p class="p-bl">Ipamorelin · 18% active</p>
+            <div class="p-tr"><div class="p-tf" style="width:18%;background:#b5451b"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker">
+    <div class="tk-in">
+      <span class="tk-tx">· Log Every Dose with Precision &nbsp;&nbsp;· Track Vials and Supplements Faster &nbsp;&nbsp;· Know What's Active in Your System &nbsp;&nbsp;· Zero Math Errors &nbsp;&nbsp;· Research Grade Tracking &nbsp;&nbsp;· Built for the Details That Matter &nbsp;&nbsp;· Smarter Injection Site Rotation &nbsp;&nbsp;· Build a Consistent Daily Habit &nbsp;&nbsp;· Manage Your Full Stack &nbsp;&nbsp;· Log Every Dose with Precision &nbsp;&nbsp;· Track Vials and Supplements Faster &nbsp;&nbsp;· Know What's Active in Your System &nbsp;&nbsp;· Zero Math Errors &nbsp;&nbsp;· Research Grade Tracking &nbsp;&nbsp;· Built for the Details That Matter &nbsp;&nbsp;· Smarter Injection Site Rotation &nbsp;&nbsp;· Build a Consistent Daily Habit &nbsp;&nbsp;· Manage Your Full Stack &nbsp;&nbsp;</span>
+      <span class="tk-tx">· Log Every Dose with Precision &nbsp;&nbsp;· Track Vials and Supplements Faster &nbsp;&nbsp;· Know What's Active in Your System &nbsp;&nbsp;· Zero Math Errors &nbsp;&nbsp;· Research Grade Tracking &nbsp;&nbsp;· Built for the Details That Matter &nbsp;&nbsp;· Smarter Injection Site Rotation &nbsp;&nbsp;· Build a Consistent Daily Habit &nbsp;&nbsp;· Manage Your Full Stack &nbsp;&nbsp;· Log Every Dose with Precision &nbsp;&nbsp;· Track Vials and Supplements Faster &nbsp;&nbsp;· Know What's Active in Your System &nbsp;&nbsp;· Zero Math Errors &nbsp;&nbsp;· Research Grade Tracking &nbsp;&nbsp;· Built for the Details That Matter &nbsp;&nbsp;· Smarter Injection Site Rotation &nbsp;&nbsp;· Build a Consistent Daily Habit &nbsp;&nbsp;· Manage Your Full Stack &nbsp;&nbsp;</span>
+    </div>
+  </div>
+
+  <section class="feat-bg" id="features">
+    <div class="si">
+      <p class="s-ey">Everything You Need</p>
+      <h2 class="s-ti">Built for the Details<br/>That Matter.</h2>
+      <p class="s-su">Every feature designed to eliminate guesswork and give you complete visibility over your protocol.</p>
+      <div class="feat-grid">
+        <div class="f-card"><div class="f-ico">💉</div><h3 class="f-ti">Protocol Tracking</h3><p class="f-de">Add unlimited peptide protocols with custom doses, frequencies, and injection sites. Log doses with one tap.</p></div>
+        <div class="f-card"><div class="f-ico">🧪</div><h3 class="f-ti">Reconstitution Calculator</h3><p class="f-de">Enter vial size and BAC water. Get the exact draw volume in mL and syringe units (IU). Zero math errors.</p></div>
+        <div class="f-card"><div class="f-ico">〰</div><h3 class="f-ti">Serum Level Tracking</h3><p class="f-de">Real-time half-life decay bars show the estimated percentage of each peptide still active in your system.</p></div>
+        <div class="f-card"><div class="f-ico">🧬</div><h3 class="f-ti">Peptide Library</h3><p class="f-de">12 detailed research profiles covering mechanism of action, dosing, half-life, reconstitution, and storage.</p></div>
+        <div class="f-card"><div class="f-ico">📍</div><h3 class="f-ti">Injection Site Rotation</h3><p class="f-de">Track every site you've used. Get intelligent suggestions for where to inject next for better absorption.</p></div>
+        <div class="f-card"><div class="f-ico">🔬</div><h3 class="f-ti">Vial Inventory</h3><p class="f-de">Track how many doses remain in each vial. Get a warning before you run out so you never miss a dose.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works">
+    <div class="si">
+      <p class="s-ey">How It Works</p>
+      <h2 class="s-ti">Up and running<br/>in minutes.</h2>
+      <div class="steps">
+        <div class="step"><div class="s-num">1</div><h3 class="s-stl">Set Your Goals</h3><p class="s-sde">Complete a quick onboarding — set your goals, experience level, and biometrics for personalised dose ranges.</p></div>
+        <div class="step"><div class="s-num">2</div><h3 class="s-stl">Add Your Protocols</h3><p class="s-sde">Set up each peptide protocol in 3 steps. Enter vial details to unlock the reconstitution calculator.</p></div>
+        <div class="step"><div class="s-num">3</div><h3 class="s-stl">Log Every Dose</h3><p class="s-sde">One tap to log. Watch your heatmap fill, streak grow, and serum levels update in real time.</p></div>
+        <div class="step"><div class="s-num">4</div><h3 class="s-stl">Review Your Progress</h3><p class="s-sde">Track mood, weight, and daily notes. Review trends and manage your full stack from one screen.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="disc-sec">
+    <div class="disc-in">
+      <div class="disc-bdg">Research Use Only</div>
+      <h2>Built Responsibly.</h2>
+      <p>Peptide Dose is a personal research tracking and organisational tool only. It does not provide medical advice, diagnosis, or treatment recommendations of any kind. You must be 18 or older to use this app. Always consult a qualified healthcare provider before starting any peptide protocol.</p>
+    </div>
+  </div>
+
+  <section class="dl-sec" id="download">
+    <div class="si" style="text-align:center">
+      <p class="s-ey" style="text-align:center">Available Now</p>
+      <h2 class="s-ti" style="text-align:center">Research Grade Tracking.<br/>Built for the Details <em>That Matter.</em></h2>
+      <p class="s-su" style="text-align:center;margin:0 auto">Download Peptide Dose on the App Store. Free to start. Research grade from day one.</p>
+      <div style="display:flex;justify-content:center">
+        <a href="https://apps.apple.com" class="asb"><span style="font-size:26px">🍎</span><div><span class="asb-s">Download on the</span><span class="asb-m">App Store</span></div></a>
+      </div>
+      <p style="font-size:11px;color:var(--dim);margin-top:12px">iOS 16+ · Free · Research purposes only · 18+</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="ft-in">
+      <div class="ft-br">
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="36" height="42" viewBox="0 0 40 46">
+            <polygon points="20,2 38,12 38,34 20,44 2,34 2,12" fill="#2d6a4f"/>
+            <line x1="20" y1="23" x2="12" y2="17" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="20" y1="23" x2="28" y2="17" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="20" y1="23" x2="12" y2="29" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="20" y1="23" x2="28" y2="29" stroke="#7fffa8" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="3.5" fill="#7fffa8"/>
+            <circle cx="28" cy="17" r="3.5" fill="#7fffa8"/>
+            <circle cx="12" cy="29" r="3.5" fill="#7fffa8"/>
+            <circle cx="28" cy="29" r="3.5" fill="#7fffa8"/>
+            <circle cx="20" cy="23" r="5" fill="#7fffa8"/>
+            <circle cx="20" cy="23" r="2.5" fill="#1a3d2b"/>
+          </svg>
+          <div class="wm wm-light"><span class="wm-p">PEPTIDE</span><span class="wm-d">Dose</span></div>
+        </div>
+        <p>Research grade peptide tracking for serious users. Log every dose with precision.</p>
+        <p style="margin-top:6px;font-size:11px">For research purposes only · Not medical advice</p>
+      </div>
+      <div class="ft-col">
+        <h4>App</h4>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#download">Download</a>
+      </div>
+      <div class="ft-col">
+        <h4>Legal</h4>
+        <a onclick="showPage('privacy')">Privacy Policy</a>
+        <a onclick="showPage('terms')">Terms of Service</a>
+        <a onclick="showPage('support')">Support</a>
+      </div>
+    </div>
+    <div class="ft-bt">
+      <p>© 2026 Peptide Dose · Sydney, NSW, Australia</p>
+      <p>sharonlai8@icloud.com</p>
+    </div>
+  </footer>
+</div><!-- /home -->
+
+
+<!-- ═══════════════════════ PRIVACY ═══════════════════════ -->
+<div id="page-privacy" class="page">
+  <div class="lg-hero"><div class="lg-hi"><h1>Privacy Policy</h1><p>Effective date: May 2026 · Last updated: May 2026</p></div></div>
+  <div class="lg-body">
+
+    <h2>Introduction</h2>
+    <p>Peptide Dose ("we", "the app") is operated by Sharon Lai, Sydney, NSW, Australia. This policy describes how we handle information when you use our mobile app on iOS.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>Important</h2>
+    <p>The app is for personal organisation and research-related logging only. It is not a medical device and does not provide medical advice, diagnosis, or treatment. You must be 18 or older to use the app.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>1. Information the App Processes</h2>
+
+    <p><strong>Information you enter</strong></p>
+    <p>Information you choose to save in the app may include: profile details (such as name or email if you provide them), peptide protocols, dose logs, reminder preferences, check-ins (such as mood, energy, weight, notes), and related notes. Some of this may be considered health-related depending on how you use the app.</p>
+
+    <p><strong>On-device storage</strong></p>
+    <p>Much of this information is stored on your device using the operating system's standard app storage. It remains on your device unless you use cloud features described below.</p>
+
+    <p><strong>Account and cloud sync (optional)</strong></p>
+    <p>If you create an account or enable features that sync data, information may be sent to our backend provider (Supabase) to authenticate you and store your data so it can sync across devices. What is stored matches what you save in the app. Data is encrypted in transit (TLS) and at rest (AES-256).</p>
+
+    <p><strong>Subscriptions</strong></p>
+    <p>Purchases and subscription status are processed by Apple and by our subscription provider (RevenueCat) to validate entitlements and restore purchases. We do not receive your full payment card number from the app.</p>
+
+    <p><strong>Notifications</strong></p>
+    <p>If you enable reminders, the app schedules local notifications on your device. We do not access your messages or contacts for this purpose.</p>
+
+    <p><strong>Exports</strong></p>
+    <p>If you use export features, data is packaged on your device and shared using the system share sheet (e.g. Mail, Files). Where the file goes after that is under your control.</p>
+
+    <p><strong>Technical and diagnostic data</strong></p>
+    <p>The app and our service providers may process limited technical information needed to run the app, such as device type, app version, and error diagnostics. We do not use third-party crash analytics in the app today.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>2. How We Use Information</h2>
+    <p>We use the information above to provide the app's features — logging, reminders, cloud sync if enabled, subscription access, and support. We do not sell your data, use it for advertising, or share it with pharmaceutical companies.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>3. Sharing</h2>
+    <p>We share data only with service providers who help us run the app:</p>
+    <ul>
+      <li>Supabase (account and cloud sync, if you use it) — <a href="https://supabase.com/privacy" target="_blank">supabase.com/privacy</a></li>
+      <li>RevenueCat (subscription management) — <a href="https://revenuecat.com/privacy" target="_blank">revenuecat.com/privacy</a></li>
+      <li>Apple App Store (distribution and payments) — <a href="https://apple.com/privacy" target="_blank">apple.com/privacy</a></li>
+      <li>Anthropic Claude (AI assistant feature) — <a href="https://anthropic.com/privacy" target="_blank">anthropic.com/privacy</a></li>
+    </ul>
+    <p>We may also share information if required by law.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>4. Retention</h2>
+    <ul>
+      <li>On-device data remains until you delete the app or clear data in the app</li>
+      <li>Account data is kept while your account exists — you can request deletion as described below</li>
+      <li>Subscription records are retained as needed for billing and fraud prevention per Apple and RevenueCat policies</li>
+    </ul>
+
+    <div class="lg-div"></div>
+
+    <h2>5. Your Choices</h2>
+    <ul>
+      <li>You can stop using the app or delete it from your device at any time</li>
+      <li>If you have an account, you can request deletion of your account data by contacting us</li>
+      <li>You can manage subscriptions in your Apple ID subscription settings</li>
+      <li>You can export your data at any time using the export feature in the app</li>
+    </ul>
+    <p>To request account deletion or data access contact: <a href="mailto:privacy@peptidedose.app">privacy@peptidedose.app</a>. We will respond within 30 days.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>6. Security</h2>
+    <p>We use reasonable measures to protect your information. No method of transmission or storage is 100% secure.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>7. Children</h2>
+    <p>The app is not intended for users under 18. We do not knowingly collect data from anyone under 18. If you believe a minor has provided us with personal information please contact us at <a href="mailto:privacy@peptidedose.app">privacy@peptidedose.app</a> and we will delete it promptly.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>8. Medical Disclaimer</h2>
+    <p>Peptide Dose is a personal research tracking and organisational tool only. It is not a medical device and does not provide medical advice, diagnosis, or treatment recommendations of any kind. Always consult a qualified and licensed healthcare provider before starting, modifying, or stopping any peptide protocol or pharmaceutical regimen. Use of this app is entirely at your own discretion and risk.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>9. International Users — EU, EEA and UK</h2>
+    <p>Peptide Dose is available globally. If you are located in the EU, EEA, or UK, the following applies:</p>
+    <p><strong>Legal bases:</strong> Where required by law we rely on the following legal bases to process your data:</p>
+    <ul>
+      <li>Performance of a contract — to provide the app's features to you</li>
+      <li>Legitimate interests — to maintain security, prevent fraud, and improve the service</li>
+      <li>Consent — where you have explicitly agreed, such as enabling optional cloud sync or notifications</li>
+    </ul>
+    <p><strong>International transfers:</strong> Your data may be processed in countries outside the EU/EEA including Australia and the United States. Our service providers (Supabase, RevenueCat) maintain their own appropriate safeguards for international data transfers.</p>
+    <p><strong>Your rights under GDPR:</strong> If you are in the EU/EEA or UK you have the right to access, rectify, erase, restrict, or port your personal data, and to object to processing. To exercise these rights contact us at <a href="mailto:privacy@peptidedose.app">privacy@peptidedose.app</a>. You also have the right to lodge a complaint with your local data protection authority.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>10. Changes</h2>
+    <p>We may update this policy. We will post the new version on this page and update the effective date. Continued use of Peptide Dose after changes constitutes acceptance of the updated policy.</p>
+
+    <div class="lg-div"></div>
+
+    <h2>11. Contact</h2>
+    <p>Privacy questions: <a href="mailto:privacy@peptidedose.app">privacy@peptidedose.app</a><br/>
+    Sharon Lai · Sydney, NSW, Australia</p>
+    <p style="margin-top:14px;font-size:12px;color:var(--dim)">This privacy policy was last reviewed and updated in May 2026.</p>
+
+  </div>
+  <div class="lg-ft"><div class="lg-ft-in"><p>© 2026 Peptide Dose. All rights reserved.</p><div><a onclick="showPage('home')">Home</a><a onclick="showPage('terms')">Terms</a><a onclick="showPage('support')">Support</a></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════ TERMS ═══════════════════════ -->
+<div id="page-terms" class="page">
+  <div class="lg-hero"><div class="lg-hi"><h1>Terms of Service</h1><p>Last updated: April 2026</p></div></div>
+  <div class="lg-body">
+    <h2>Acceptance of Terms</h2>
+    <p>By downloading or using Peptide Dose, you agree to these Terms of Service. If you do not agree, do not use the app.</p>
+    <h2>Age Requirement</h2>
+    <p>You must be 18 years of age or older to use Peptide Dose. By using the app you confirm you meet this requirement.</p>
+    <div class="lg-div"></div>
+    <h2>Research Use Only</h2>
+    <p>Peptide Dose is a personal research tracking and organisational tool only. It does not provide medical advice, diagnosis, or treatment recommendations of any kind. Nothing in this app constitutes medical advice. Always consult a qualified and licensed healthcare provider before starting, modifying, or stopping any peptide protocol or pharmaceutical regimen.</p>
+    <div class="lg-div"></div>
+    <h2>User Responsibilities</h2>
+    <ul>
+      <li>You are solely responsible for your use of this app and any peptide protocols you follow</li>
+      <li>You must comply with all applicable laws in your jurisdiction</li>
+      <li>You must not use this app for any unlawful purpose</li>
+      <li>You must not attempt to reverse engineer, copy, or distribute the app</li>
+    </ul>
+    <div class="lg-div"></div>
+    <h2>Subscriptions and Payments</h2>
+    <p>Peptide Dose offers optional paid subscriptions processed through Apple's App Store. All payments are subject to Apple's terms and conditions. Subscriptions auto-renew unless cancelled at least 24 hours before the end of the current period. Manage or cancel subscriptions in iPhone Settings → Apple ID → Subscriptions.</p>
+    <div class="lg-div"></div>
+    <h2>Limitation of Liability</h2>
+    <p>To the maximum extent permitted by law, Peptide Dose and its developers shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of the app, including but not limited to health outcomes resulting from peptide use.</p>
+    <div class="lg-div"></div>
+    <h2>Changes to Terms</h2>
+    <p>We may update these terms from time to time. Continued use of Peptide Dose after changes constitutes acceptance of the updated terms.</p>
+    <div class="lg-div"></div>
+    <h2>Contact</h2>
+    <p>Email: <a href="mailto:support@peptidedose.app">support@peptidedose.app</a><br/>Sydney, NSW, Australia</p>
+  </div>
+  <div class="lg-ft"><div class="lg-ft-in"><p>© 2026 Peptide Dose. All rights reserved.</p><div><a onclick="showPage('home')">Home</a><a onclick="showPage('privacy')">Privacy</a><a onclick="showPage('support')">Support</a></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════ SUPPORT ═══════════════════════ -->
+<div id="page-support" class="page">
+  <div class="lg-hero"><div class="lg-hi"><h1>Support</h1><p>We usually respond within 24 hours.</p></div></div>
+  <div class="lg-body">
+    <h2>Contact Us</h2>
+    <p>For questions, bugs, or feedback:<br/><a href="mailto:support@peptidedose.app" style="font-weight:700;font-size:17px">support@peptidedose.app</a></p>
+    <div class="lg-div"></div>
+    <h2>Frequently Asked Questions</h2>
+    <h2>How do I add a protocol?</h2>
+    <p>Tap "+ Add Protocol" on the Today screen. Follow the 3-step setup — select your peptide, set your dose and frequency, and optionally add vial details for the reconstitution calculator.</p>
+    <h2>How does the reconstitution calculator work?</h2>
+    <p>Enter your vial size in mg and the volume of bacteriostatic water in mL. Then enter your target dose. The calculator instantly shows the exact draw volume in mL and insulin syringe units (IU).</p>
+    <h2>What does the serum level bar show?</h2>
+    <p>An estimated percentage of the peptide still active in your system based on its half-life and the time since your last logged dose. For organisational reference only — not a medical measurement.</p>
+    <h2>How do I restore my purchases?</h2>
+    <p>Go to Profile → tap "Restore Purchases". Make sure you are signed in with the same Apple ID used to make the original purchase.</p>
+    <h2>How do I delete my account and data?</h2>
+    <p>Go to Profile → scroll to the bottom → tap "Delete My Account". All data will be permanently deleted within 30 days. Or email <a href="mailto:support@peptidedose.app">support@peptidedose.app</a> and we will process it manually.</p>
+    <h2>Is my data private?</h2>
+    <p>Yes. Data is stored locally on your device by default. If you create an account it is stored using encrypted cloud storage. We never sell your data. See our <a onclick="showPage('privacy')" style="cursor:pointer">Privacy Policy</a> for full details.</p>
+    <div class="lg-div"></div>
+    <h2>Medical Disclaimer</h2>
+    <p>Peptide Dose is for research and organisational purposes only. It is not a medical device and does not provide medical advice. Always consult a qualified healthcare provider before starting any peptide protocol.</p>
+  </div>
+  <div class="lg-ft"><div class="lg-ft-in"><p>© 2026 Peptide Dose. All rights reserved.</p><div><a onclick="showPage('home')">Home</a><a onclick="showPage('privacy')">Privacy</a><a onclick="showPage('terms')">Terms</a></div></div></div>
+</div>
+
+<script>
+  function showPage(name) {
+    ['home','privacy','terms','support'].forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.style.display = 'none';
+    });
+    const t = document.getElementById('page-' + name);
+    if (t) { t.style.display = 'block'; window.scrollTo(0,0); }
+  }
+  document.getElementById('page-home').style.display = 'block';
+</script>
+</body>
+</html>
